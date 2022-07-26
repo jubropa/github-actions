@@ -1,34 +1,30 @@
-name: 'My First Github Actions Workflow'
+name: 'My First GitHub Actions Workflow'
 
-on: 'push'
-# - 'pull_request'
+on: push
 
-# 각각의 잡들은 독립적인 서버에서 동작한다고 가정
-# 따라서 서로 격리 상태이기 때문에 직접적으로 소통은 불가
-jobs: 
+env:
+  WORKFLOW_LEVEL: 'This value comes from the workflow level'
+
+jobs:
   first-job:
     name: 'First Job'
 
     runs-on: ubuntu-latest
 
-    steps: 
-    - name: 'Say Hello World on step 1'
+    steps:
+    - name: 'Set environment variable 1'
       shell: bash
-      env:
-        STEP_LEVEL_1: 'This value comes from the step 1'
-      run:
-        echo "Hello World from Step 1"
-        # echo $WORKFLOW_LEVEL
-        # echo $JOB_LEVEL
-        echo $STEP_LEVEL_1
-
-    # - name: 'Say Lorem Ipsum on step 2'
-    #   shell: pwsh
-    #   env:
-    #     STEP_LEVEL_2: 'This value comes from the step 2'
-    #   run:
-    #     echo "Hello World from Step 2"
-    #     # echo $env:WORKFLOW_LEVEL
-    #     # echo $env:JOB_LEVEL
-    #     echo $env:STEP_LEVEL_2
-  # second-job:
+      run: |
+        echo $GITHUB_ENV
+        echo "STEP_1='This value comes from the step 1'" >> $GITHUB_ENV
+    - name: 'Set environment variable 2'
+      shell: pwsh
+      run: |
+        echo "STEP_2='This value comes from the step 2'" `
+          | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
+    - name: 'Get environment variables'
+      shell: bash
+      run: |
+        echo "WORKFLOW: ${{ env.WORKFLOW_LEVEL }}"
+        echo "STEP 1: ${{ env.STEP_1 }}"
+        echo "STEP 2: ${{ env.STEP_2 }}"
