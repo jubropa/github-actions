@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps: 
-      name: 'Say Hello World on step 1'
+    - name: 'Say Hello World on step 1'
       shell: bash
       env:
         STEP_LEVEL_1: 'This value comes from the step 1'
