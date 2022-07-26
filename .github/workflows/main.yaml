@@ -1,0 +1,26 @@
+name: 'My First Github Actions Workflow'
+
+on: 
+- 'push'
+# - 'pull_request'
+
+
+# 각각의 잡들은 독립적인 서버에서 동작한다고 가정
+# 따라서 서로 격리 상태이기 때문에 직접적으로 소통은 불가
+jobs: 
+  first-job:
+    name: 'First Job'
+
+    runs-on: ubuntu-latest
+
+    steps: 
+    - name: 'Say Hello World on step 1'
+      shell: bash
+      run:
+        echo "Hello World from Step 1"
+
+    - name: 'Say Lorem Ipsum on step 2'
+      shell: pwsh
+      run:
+      echo "Hello World from Step 2"
+  # second-job:
