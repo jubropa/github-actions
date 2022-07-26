@@ -20,23 +20,23 @@ jobs:
       JOB_LEVEL: 'jb'
 
     steps: 
-    - name: 'Say Hello World on step 1'
-      shell: bash
-      env:
-        STEP_LEVEL_1: 'This value comes from the step 1'
-      run:
-        echo "Hello World from Step 1"
-        # echo $WORKFLOW_LEVEL
-        # echo $JOB_LEVEL
-        echo $STEP_LEVEL_1
+      - name: 'Say Hello World on step 1'
+        shell: bash
+        env:
+          STEP_LEVEL_1: 'This value comes from the step 1'
+        run:
+          echo "Hello World from Step 1"
+          # echo $WORKFLOW_LEVEL
+          # echo $JOB_LEVEL
+          echo $STEP_LEVEL_1
 
-    - name: 'Say Lorem Ipsum on step 2'
-      shell: pwsh
-            env:
-        STEP_LEVEL_2: 'This value comes from the step 2'
-      run:
-        echo "Hello World from Step 2"
-        # echo $env:WORKFLOW_LEVEL
-        # echo $env:JOB_LEVEL
-        echo $env:STEP_LEVEL_2
+      - name: 'Say Lorem Ipsum on step 2'
+        shell: pwsh
+        env:
+          STEP_LEVEL_2: 'This value comes from the step 2'
+        run:
+          echo "Hello World from Step 2"
+          # echo $env:WORKFLOW_LEVEL
+          # echo $env:JOB_LEVEL
+          echo $env:STEP_LEVEL_2
   # second-job:
