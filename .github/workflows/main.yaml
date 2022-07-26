@@ -4,10 +4,6 @@ on:
 - 'push'
 # - 'pull_request'
 
-env:
-  WORKFLOW_LEVEL: 'wk'
-
-
 # 각각의 잡들은 독립적인 서버에서 동작한다고 가정
 # 따라서 서로 격리 상태이기 때문에 직접적으로 소통은 불가
 jobs: 
@@ -15,9 +11,6 @@ jobs:
     name: 'First Job'
 
     runs-on: ubuntu-latest
-
-    env:
-      JOB_LEVEL: 'jb'
 
     steps: 
       name: 'Say Hello World on step 1'
