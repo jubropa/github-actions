@@ -32,7 +32,9 @@
 
 name: 'My First GitHub Actions Workflow'
 
-on: push
+on: 
+- push
+# - 'pull_request'
 
 env:
   WORKFLOW_LEVEL: 'This value comes from the workflow level'
