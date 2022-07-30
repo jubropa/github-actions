@@ -1,7 +1,6 @@
-# 필수 : name, on, jobs
-name: 'My First GitHub Actions' # 워크플로우 이름
+name: 'My First GitHub Actions'
 
-on: # [ 'push', 'pull_request' ] # 수행할 이벤트
+on:
   push:
     branches:
     - main
@@ -11,26 +10,16 @@ on: # [ 'push', 'pull_request' ] # 수행할 이벤트
     branches:
     - main
 
-jobs: # 어떤 일을 할지를 정의
-  call_build: # 이거 하나하나가 하나의 빌드 서버라고 보면 됨
-    uses: './.github/workflows/ci.yaml'
+jobs:
+  call_build:
+    uses: ./.github/workflows/ci.yaml
     with:
       artifact_name: apiapp
-  
-  call_release_dev:
-    uses: './.github/workflows/cd.yaml'
+
+  call_release:
+    uses: ./.github/workflows/cd.yaml
     needs: call_build
     with:
       title: latest
       artifact_name: apiapp
-      env: DEV
-    secrets: inherit
-  
-  call_release_prod:
-    uses: './.github/workflows/cd.yaml'
-    needs: call_release_dev
-    with:
-      title: latest
-      artifact_name: apiapp
-      env: PROD
     secrets: inherit
