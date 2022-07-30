@@ -12,16 +12,14 @@ on:
 
 jobs:
   call_build:
-    uses: ./.github/workflows/ci.yaml
+    uses: './.github/workflows/ci.yaml'
     with:
-      automatic_release_tag: "latest"
       artifact_name: apiapp
 
   call_release:
-    uses: ./.github/worlfows/cd.yaml
+    uses: './.github/worlfows/cd.yaml'
     needs: call_build
     with:
-      automatic_release_tag: "latest"
       title: latest
       artifact_name: apiapp
     secrets: inherit
