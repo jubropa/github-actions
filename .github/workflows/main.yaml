@@ -1,25 +1,20 @@
 name: 'My First GitHub Actions'
 
-on:
-  push:
-    branches:
-    - main
-    tags:
-    - 'v*'
-  pull_request:
-    branches:
-    - main
+on: push
 
 jobs:
-  call_build:
-    uses: ./.github/workflows/ci.yaml
-    with:
-      artifact_name: apiapp
+  first-job:
+    name: 'First Job'
 
-  call_release:
-    uses: ./.github/worlfows/cd.yaml
-    needs: call_build
-    with:
-      title: latest
-      artifact_name: apiapp
-    secrets: inherit
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Say Hello World 1
+      shell: bash
+      run: |
+        echo "Hello World from step 1"
+
+    - name: Say Hello World 2
+      shell: pwsh
+      run: |
+        echo "Hello World from step 2"
