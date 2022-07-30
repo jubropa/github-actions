@@ -1,0 +1,178 @@
+# name: 'My First GitHub Actions Workflow'
+
+# on: push
+
+# env:
+#   WORKFLOW_LEVEL: 'This value comes from the workflow level'
+
+# jobs:
+#   first-job:
+#     name: 'First Job'
+
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: 'Set environment variable 1'
+#       shell: bash
+#       run: |
+#         echo $GITHUB_ENV
+#         echo "STEP_1='This value comes from the step 1'" >> $GITHUB_ENV
+#     - name: 'Set environment variable 2'
+#       shell: pwsh
+#       run: |
+#         echo "STEP_2='This value comes from the step 2'" `
+#           | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
+#     - name: 'Get environment variables'
+#       shell: bash
+#       run: |
+#         echo "WORKFLOW: ${{ env.WORKFLOW_LEVEL }}"
+#         echo "STEP 1: ${{ env.STEP_1 }}"
+#         echo "STEP 2: ${{ env.STEP_2 }}"
+
+# ------------------------------------------------------------------------------
+# name: 'My First GitHub Actions Workflow'
+
+# on: 
+# - push
+# # - 'pull_request'
+
+# env:
+#   WORKFLOW_LEVEL: 'This value comes from the workflow level'
+
+# # 각주가
+# # 있으면?
+# jobs:
+#   first-job:
+#     name: 'First Job'
+
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: 'Set environment variable 1'
+#       shell: bash
+#       run: |
+#         value1='hello world'
+#         echo "STEP_1='$value1'" >> $GITHUB_ENV
+#     - name: 'Set environment variable 2'
+#       shell: pwsh
+#       run: |
+#         echo "STEP_2='This value comes from the step 2'" `
+#           | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
+#     - name: 'Get environment variables'
+#       shell: bash
+#       run: |
+#         echo "WORKFLOW: ${{ env.WORKFLOW_LEVEL }}"
+#         echo "STEP 1: ${{ env.STEP_1 }}"
+#         echo "STEP 2: ${{ env.STEP_2 }}"
+
+# 근데 이렇게 스텝 3개 띄워가면서 다른 스텝에 표시하는 건 무슨 상황...?
+
+
+name: 'My First GitHub Actions Workflow'
+
+on: push
+
+jobs:
+  first-job:
+    name: 'First Job'
+
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+
+    runs-on: ${{ matrix.os }}
+    #이러면 first job이 os환경 바꿔가면서 3번 돌아간다고 한다
+
+    steps:
+    - name: 'Set output value 1'
+      id: step1
+      shell: bash
+      run: |
+        STEP_1='This value comes from the step 1'
+        echo "::add-mask::$STEP_1"  
+# 민감한 정보를 가리자!
+## 근데 주로 mask 안쓰고 action secrets를 사용한다고 한다
+        echo "::set-output name=value1::$STEP_1"
+    - name: 'Set output value 2'
+      id: step2
+      shell: pwsh
+      run: |
+        $STEP_2='This value comes from the step 2'
+        echo "::set-output name=value2::$STEP_2"
+    - name: 'Get output values'
+      shell: bash
+      run: |
+        echo "STEP 1: ${{ steps.step1.outputs.value1 }}"
+        echo "STEP 2: ${{ steps.step2.outputs.value2 }}"
+
+#---------------------------------------------------------------------------------------------
+
+name: 'My First GitHub Actions Workflow'
+
+on: push
+
+jobs:
+  first-job:
+    name: 'First Job'
+
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest', 'windows-latest', 'macos-latest' ]
+        nodejs: [ '14.x', '16.x' ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: 'Setup node.js version'
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.nodejs }}
+        # 얘까지 끼면 3x2해서 6번 돌아감
+
+      - name: 'Check node.js version on ${{ matrix.os }}'
+        shell: bash
+        run: |
+          echo "nodejs version: $(node --version)"
+
+#------------------------------------------------------------------------------------------------
+# job 사이에 순서 만들어 주기
+
+name: 'My First GitHub Actions Workflow'
+
+on: push
+
+jobs:
+  build-job:
+    name: 'Build Job'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Say Hello'
+        shell: bash
+        run: |
+          echo "Hello World"
+  deploy-to-dev-job:
+    name: 'Deployment Job to DEV'
+    needs:
+    - build-job
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Say DEV'
+        shell: bash
+        run: |
+          echo "DEVELOPERS"
+  deploy-to-prod-job:
+    name: 'Deployment Job to PROD'
+    needs:
+    - build-job
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Say PROD'
+        shell: bash
+        run: |
+          echo "PRODUCTION"

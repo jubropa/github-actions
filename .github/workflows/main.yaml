@@ -1,100 +1,77 @@
-# name: 'My First GitHub Actions Workflow'
+name: 'My First GitHub Actions'
 
-# on: push
-
-# env:
-#   WORKFLOW_LEVEL: 'This value comes from the workflow level'
-
-# jobs:
-#   first-job:
-#     name: 'First Job'
-
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: 'Set environment variable 1'
-#       shell: bash
-#       run: |
-#         echo $GITHUB_ENV
-#         echo "STEP_1='This value comes from the step 1'" >> $GITHUB_ENV
-#     - name: 'Set environment variable 2'
-#       shell: pwsh
-#       run: |
-#         echo "STEP_2='This value comes from the step 2'" `
-#           | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
-#     - name: 'Get environment variables'
-#       shell: bash
-#       run: |
-#         echo "WORKFLOW: ${{ env.WORKFLOW_LEVEL }}"
-#         echo "STEP 1: ${{ env.STEP_1 }}"
-#         echo "STEP 2: ${{ env.STEP_2 }}"
-
-# ------------------------------------------------------------------------------
-# name: 'My First GitHub Actions Workflow'
-
-# on: 
-# - push
-# # - 'pull_request'
-
-# env:
-#   WORKFLOW_LEVEL: 'This value comes from the workflow level'
-
-# # 각주가
-# # 있으면?
-# jobs:
-#   first-job:
-#     name: 'First Job'
-
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: 'Set environment variable 1'
-#       shell: bash
-#       run: |
-#         value1='hello world'
-#         echo "STEP_1='$value1'" >> $GITHUB_ENV
-#     - name: 'Set environment variable 2'
-#       shell: pwsh
-#       run: |
-#         echo "STEP_2='This value comes from the step 2'" `
-#           | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
-#     - name: 'Get environment variables'
-#       shell: bash
-#       run: |
-#         echo "WORKFLOW: ${{ env.WORKFLOW_LEVEL }}"
-#         echo "STEP 1: ${{ env.STEP_1 }}"
-#         echo "STEP 2: ${{ env.STEP_2 }}"
-
-# 근데 이렇게 스텝 3개 띄워가면서 다른 스텝에 표시하는 건 무슨 상황...?
-
-
-name: 'My First GitHub Actions Workflow'
-
-on: push
+on:
+  push:
+    branches:
+    - main
+    tags:
+    - 'v*'
+  pull_request:
+    branches:
+    - main
 
 jobs:
-  first-job:
-    name: 'First Job'
+  build:
+    name: Build Apps
 
     runs-on: ubuntu-latest
 
     steps:
-    - name: 'Set output value 1'
-      id: step1
+    - name: Checkout the repo
+      uses: actions/checkout@v2
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.x'
+
+    - name: Restore NuGet packages
       shell: bash
       run: |
-        STEP_1='This value comes from the step 1'
-        echo "::add-mask::$STEP_1"  
-# 민감한 정보를 가리자!
-        echo "::set-output name=value1::$STEP_1"
-    - name: 'Set output value 2'
-      id: step2
-      shell: pwsh
-      run: |
-        $STEP_2='This value comes from the step 2'
-        echo "::set-output name=value2::$STEP_2"
-    - name: 'Get output values'
+        dotnet restore ./api
+
+    - name: Build solution
       shell: bash
       run: |
-        echo "STEP 1: ${{ steps.step1.outputs.value1 }}"
-        echo "STEP 2: ${{ steps.step2.outputs.value2 }}"
+        dotnet build ./api -c Release
+
+    - name: Create FunctionApp artifact
+      shell: bash
+      run: |
+        dotnet publish ./api -c Release -o ./api/bin/published
+
+    - name: Upload FunctionApp artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: apiapp
+        path: api/bin/published
+
+  release:
+    name: Release Apps
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download FunctionApp artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: apiapp
+        path: artifacts/api
+
+    - name: Zip FunctionApp artifact
+      shell: bash
+      run: |
+        pushd artifacts/api
+        zip -qq -r apiapp.zip .
+        popd
+
+        mv artifacts/api/apiapp.zip artifacts/apiapp.zip
+
+    - name: Release FunctionApp artifact to GitHub
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        files: |
+          artifacts/apiapp.zip
