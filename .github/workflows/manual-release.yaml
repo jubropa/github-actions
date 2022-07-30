@@ -6,16 +6,16 @@ on:
       title:
         type: string
         required: true
-        description: Enter the release title
+        description: 'Enter the release title'
 
 jobs:
   call_build:
-    uses: ./.github/workflows/ci.yaml
+    uses: './.github/workflows/ci.yaml'
     with:
       artifact_name: apiapp
-
+  
   call_release:
-    uses: ./.github/workflows/cd.yaml
+    uses: './.github/workflows/cd.yaml'
     needs: call_build
     with:
       title: ${{ github.event.inputs.title }}
