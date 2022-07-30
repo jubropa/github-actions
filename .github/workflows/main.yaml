@@ -1,14 +1,12 @@
-name: 'My First GitHub Actions'
+name: 'Manual Release'
 
 on:
-  push:
-    branches:
-    - main
-    tags:
-    - 'v*'
-  pull_request:
-    branches:
-    - main
+  workflow_dispatch:
+    inputs:
+      title:
+        type: string
+        required: true
+        description: Enter the release title
 
 jobs:
   build:
@@ -73,5 +71,6 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
+        title: ${{ github.event.inputs.title }}
         files: |
           artifacts/apiapp.zip
